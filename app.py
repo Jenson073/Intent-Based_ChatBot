@@ -130,7 +130,6 @@ def display_chat():
                         "chatbot": response,
                         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     })
-                    st.experimental_rerun()
 
         if st.button("Clear Chat History"):
             st.session_state['chat_history'] = []
