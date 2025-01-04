@@ -69,10 +69,13 @@ def display_chat():
 
     if choice == "Home":
         st.write("👋 Welcome! I'm here to assist you. You can ask me anything or choose an option from the menu.")
+        input_container = st.empty()
 
-        # Input and response handling
-        user_input = st.text_input("💬 You:", key="user_input", placeholder="Type your message here...")
-        if st.button("🚀 Send"):
+        with input_container.container():
+            user_input = st.text_input("💬 You:", key="user_input", placeholder="Type your message here...")
+            send_button = st.button("🚀 Send")
+
+        if user_input or send_button:
             if user_input:
                 with st.spinner("🤖 Chatbot is typing..."):
                     time.sleep(1)  # Simulate typing delay
@@ -84,9 +87,6 @@ def display_chat():
                 })
                 st.write(f"**💬 You:** {user_input}")
                 st.write(f"**🤖 Chatbot:** {response}")
-                
-                # Clear the input box after sending
-                st.session_state['user_input'] = ""
 
     elif choice == "Chat History":
         st.subheader("📜 Chat History")
@@ -96,6 +96,9 @@ def display_chat():
                 st.write(f"**🤖 Chatbot:** {chat['chatbot']}")
                 st.write(f"**⏱ Timestamp:** {chat['timestamp']}")
                 st.markdown("---")
+            if st.button("🗑️ Clear History"):
+                st.session_state['chat_history'] = []
+                st.success("Chat history cleared!")
         else:
             st.write("📂 No chat history available.")
 
