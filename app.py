@@ -43,11 +43,14 @@ def chatbot(input_text, clf, vectorizer, label_encoder, responses):
 
 # Streamlit Chat Interface
 def display_chat():
-    st.title("Enhanced Intent-Based Chatbot")
+    st.set_page_config(page_title="Enhanced Chatbot", layout="wide")
+    st.title("🤖 Enhanced Intent-Based Chatbot")
+    st.markdown("Ask me anything! I'll do my best to provide meaningful answers.")
 
     # Sidebar menu
+    st.sidebar.title("Menu")
     menu = ["Home", "Chat History", "Model Evaluation", "About"]
-    choice = st.sidebar.selectbox("Menu", menu)
+    choice = st.sidebar.radio("Navigate", menu)
 
     # Initialize chat history
     if 'chat_history' not in st.session_state:
@@ -61,23 +64,31 @@ def display_chat():
     clf.fit(X_train, y_train)
 
     if choice == "Home":
-        st.write("Welcome! Ask the chatbot a question.")
+        # Chat interface
+        st.markdown("### Start Chatting:")
         input_container = st.empty()
+        chat_container = st.container()
 
-        with input_container.container():
-            user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...")
+        with input_container:
+            user_input = st.text_input("Type your message here...", key="user_input")
             send_button = st.button("Send")
+            clear_button = st.button("Clear Chat")
+
+        if clear_button:
+            st.session_state['chat_history'] = []
 
         if user_input or send_button:
             if user_input:
                 response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
-                st.session_state['chat_history'].append({
-                    "user": user_input,
-                    "chatbot": response,
-                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                })
-                st.write(f"You: {user_input}")
-                st.write(f"Chatbot: {response}")
+                st.session_state['chat_history'].append({"user": user_input, "chatbot": response})
+                user_input = ""  # Clear input field
+
+        # Display chat history
+        with chat_container:
+            for chat in st.session_state['chat_history']:
+                st.markdown(f"**🧑 You:** {chat['user']}")
+                st.markdown(f"**🤖 Bot:** {chat['chatbot']}")
+                st.markdown("---")
 
     elif choice == "Chat History":
         st.subheader("Chat History")
@@ -85,21 +96,25 @@ def display_chat():
             for chat in st.session_state['chat_history']:
                 st.write(f"**You:** {chat['user']}")
                 st.write(f"**Chatbot:** {chat['chatbot']}")
-                st.write(f"**Timestamp:** {chat['timestamp']}")
                 st.markdown("---")
         else:
             st.write("No chat history available.")
 
     elif choice == "Model Evaluation":
         st.subheader("Model Evaluation")
-        model_accuracy = accuracy_score(y_test, clf.predict(X_test))
-        classification_rep = classification_report(y_test, clf.predict(X_test))
-        st.write(f"Model Accuracy: {model_accuracy * 100:.2f}%")
-        st.write("### Classification Report")
+        y_pred = clf.predict(X_test)
+        model_accuracy = accuracy_score(y_test, y_pred)
+        classification_rep = classification_report(y_test, y_pred, target_names=label_encoder.classes_)
+        st.write(f"**Model Accuracy:** {model_accuracy * 100:.2f}%")
+        st.markdown("### Classification Report")
         st.text(classification_rep)
 
     elif choice == "About":
-        st.write("This project is a chatbot built using NLP and Streamlit.")
+        st.write("""
+        This project is an intent-based chatbot built using Natural Language Processing (NLP).
+        It is designed to provide accurate responses based on user input and includes features like
+        model evaluation, chat history, and an enhanced user interface.
+        """)
 
 if __name__ == '__main__':
     display_chat()
