@@ -16,8 +16,8 @@ To interact with the chatbot deployed using Streamlit, click the link below:
 ### 🧪 For Localtunnel Deployment
 To view and run the chatbot deployed using Localtunnel, follow the instructions in the provided Jupyter Notebook (`.ipynb`). The notebook contains step-by-step instructions for:  
 1️⃣ Setting up the environment  
-2️⃣ Preparing the data  
-3️⃣ Running the chatbot using Streamlit  
+2️⃣ Preparing the data and code 
+3️⃣ Running the chatbot using Localtunnel on Streamlit 
 
 ### 🌟 For Streamlit Deployment
 To run the chatbot with a Streamlit account:
