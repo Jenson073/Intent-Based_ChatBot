@@ -43,12 +43,10 @@ def chatbot(input_text, clf, vectorizer, label_encoder, responses):
 
 # Streamlit Chat Interface
 def display_chat():
-    st.set_page_config(page_title="Intent-Based Chatbot", layout="wide")
-    st.title("🤖 Intent-Based Chatbot")
-
-    # Sidebar navigation menu
+    st.set_page_config(page_title="Enhanced Chatbot", layout="wide")
+    st.sidebar.title("Chatbot Navigation")
     menu = ["Home", "Chat History", "Model Evaluation", "About"]
-    choice = st.sidebar.selectbox("Navigate", menu)
+    choice = st.sidebar.radio("Menu", menu)
 
     # Initialize chat history
     if 'chat_history' not in st.session_state:
@@ -61,73 +59,108 @@ def display_chat():
     clf = RandomForestClassifier(n_estimators=200, random_state=42)
     clf.fit(X_train, y_train)
 
+    # CSS for custom styling
+    st.markdown("""
+        <style>
+        body {
+            background-color: #f7f8fc;
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: fit-content;
+            max-width: 60%;
+        }
+        .bot-message {
+            background-color: #f1f0f0;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: fit-content;
+            max-width: 60%;
+        }
+        .bot-message-container {
+            display: flex;
+            justify-content: flex-start;
+        }
+        .user-message-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     if choice == "Home":
-        st.subheader("Chat with the Bot")
-        st.write("Type your message below and interact with the chatbot in real-time.")
+        st.title("Chat with the Enhanced Chatbot")
+        st.subheader("Interact with the chatbot and get real-time responses!")
 
-        # Display chat history dynamically
-        if st.session_state['chat_history']:
+        chat_container = st.container()
+        input_container = st.container()
+
+        with chat_container:
+            st.markdown('<div class="chat-container">', unsafe_allow_html=True)
             for chat in st.session_state['chat_history']:
-                st.markdown(f"**You:** {chat['user']}")
-                st.markdown(f"**Bot:** {chat['chatbot']}")
-                st.markdown(f"**Timestamp:** {chat['timestamp']}")
-                st.markdown("---")
+                if chat["user"]:
+                    st.markdown(
+                        f'<div class="user-message-container"><div class="user-message"><b>You:</b> {chat["user"]}</div></div>',
+                        unsafe_allow_html=True)
+                if chat["chatbot"]:
+                    st.markdown(
+                        f'<div class="bot-message-container"><div class="bot-message"><b>Bot:</b> {chat["chatbot"]}</div></div>',
+                        unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        # Input field for user input
-        user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...")
+        with input_container:
+            user_input = st.text_input("Ask something:", key="user_input", placeholder="Type your message here...")
+            if st.button("Send"):
+                if user_input:
+                    response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
+                    st.session_state['chat_history'].append({
+                        "user": user_input,
+                        "chatbot": response,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    })
+                    st.experimental_rerun()
 
-        # Process input when "Enter" key is pressed or "Send" button is clicked
-        if st.button("Send") or (user_input and st.session_state.get("user_input_sent", False)):
-            st.session_state["user_input_sent"] = False  # Reset the flag
-            if user_input.strip():  # Check if the input is not empty
-                response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
-                st.session_state['chat_history'].append({
-                    "user": user_input,
-                    "chatbot": response,
-                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                })
-                st.experimental_rerun()
-
-        # JavaScript for "Enter" key support
-        st.markdown("""
-        <script>
-        const inputField = window.parent.document.querySelectorAll('input[type="text"]')[0];
-        inputField.addEventListener('keydown', (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                window.parent.document.querySelector('button[type="button"]').click();
-            }
-        });
-        </script>
-        """, unsafe_allow_html=True)
+        if st.button("Clear Chat History"):
+            st.session_state['chat_history'] = []
+            st.experimental_rerun()
 
     elif choice == "Chat History":
-        st.subheader("Chat History")
+        st.title("Chat History")
         if st.session_state['chat_history']:
             for chat in st.session_state['chat_history']:
-                st.markdown(f"**You:** {chat['user']}")
-                st.markdown(f"**Bot:** {chat['chatbot']}")
-                st.markdown(f"**Timestamp:** {chat['timestamp']}")
+                st.write(f"**You:** {chat['user']}")
+                st.write(f"**Bot:** {chat['chatbot']}")
+                st.write(f"**Timestamp:** {chat['timestamp']}")
                 st.markdown("---")
-            if st.button("Clear Chat History"):
-                st.session_state['chat_history'] = []
-                st.success("Chat history cleared!")
         else:
             st.write("No chat history available.")
 
     elif choice == "Model Evaluation":
-        st.subheader("Model Evaluation")
-        y_pred = clf.predict(X_test)
-        model_accuracy = accuracy_score(y_test, y_pred)
-        classification_rep = classification_report(y_test, y_pred, target_names=label_encoder.classes_)
-        st.write(f"**Model Accuracy:** {model_accuracy * 100:.2f}%")
-        st.markdown("### Classification Report")
+        st.title("Model Evaluation")
+        model_accuracy = accuracy_score(y_test, clf.predict(X_test))
+        classification_rep = classification_report(y_test, clf.predict(X_test))
+
+        st.write(f"Model Accuracy: {model_accuracy * 100:.2f}%")
+        st.text("Classification Report:")
         st.text(classification_rep)
 
     elif choice == "About":
+        st.title("About the Project")
         st.write("""
-        This project is an intent-based chatbot built using Natural Language Processing (NLP).
-        It includes features like real-time chat, chat history, model evaluation, and a user-friendly interface.
+            This is a chatbot application built using NLP and machine learning techniques.
+            The interface has been enhanced with a clean and interactive design.
         """)
 
 if __name__ == '__main__':
