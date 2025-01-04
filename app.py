@@ -86,7 +86,7 @@ def display_chat():
                 st.write(f"**🤖 Chatbot:** {response}")
                 
                 # Clear the input box after sending
-                st.session_state.user_input = ""
+                st.session_state['user_input'] = ""
 
     elif choice == "Chat History":
         st.subheader("📜 Chat History")
