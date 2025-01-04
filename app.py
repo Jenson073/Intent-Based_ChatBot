@@ -70,7 +70,7 @@ def display_chat():
         st.session_state['chat_history'] = []
 
     # Load data and train model
-    patterns, tags, responses = load_data('/content/drive/My Drive/intents.json')
+    patterns, tags, responses = load_data('intents.json')
     x, y, vectorizer, label_encoder = preprocess_data(patterns, tags)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
     clf = RandomForestClassifier(n_estimators=200, random_state=42)
