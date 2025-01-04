@@ -63,13 +63,13 @@ def display_chat():
 
     if choice == "Home":
         st.subheader("Chat with the Bot")
-        input_container = st.empty()
-
-        with input_container:
-            user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...")
-            send_button = st.button("Send")
-
-        if user_input or send_button:
+        st.write("Type your message below and press 'Send' to interact with the chatbot.")
+        
+        # Input field for user input
+        user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...", label_visibility="collapsed")
+        
+        # Send button
+        if st.button("Send"):
             if user_input:
                 response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
                 st.session_state['chat_history'].append({
