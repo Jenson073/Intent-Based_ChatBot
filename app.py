@@ -10,6 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from datetime import datetime
+import time
 
 # Download necessary NLTK datasets
 nltk.download('punkt')
@@ -43,128 +44,80 @@ def chatbot(input_text, clf, vectorizer, label_encoder, responses):
 
 # Streamlit Chat Interface
 def display_chat():
-    st.set_page_config(page_title="Enhanced Chatbot", layout="wide")
+    st.title("Enhanced Intent-Based Chatbot")
 
-    # Sidebar navigation
+    # Sidebar menu
     menu = ["Home", "Chat History", "Model Evaluation", "About"]
-    choice = st.sidebar.radio("Menu", menu)
+    choice = st.sidebar.selectbox("Menu", menu)
+
+    # Theme toggle
+    theme = st.sidebar.radio("Choose Theme", options=["Light", "Dark"])
+    if theme == "Dark":
+        st.markdown(
+            """
+            <style>
+            body {
+                background-color: #1e1e1e;
+                color: #ffffff;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
 
     # Initialize chat history
     if 'chat_history' not in st.session_state:
         st.session_state['chat_history'] = []
 
     # Load data and train model
-    patterns, tags, responses = load_data('intents.json')
+    patterns, tags, responses = load_data('/content/drive/My Drive/intents.json')
     x, y, vectorizer, label_encoder = preprocess_data(patterns, tags)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
     clf = RandomForestClassifier(n_estimators=200, random_state=42)
     clf.fit(X_train, y_train)
 
-    # CSS for custom styling
-    st.markdown("""
-        <style>
-        body {
-            background-color: #f7f8fc;
-        }
-        .user-message {
-            background-color: #dcf8c6;
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 10px;
-            width: fit-content;
-            max-width: 60%;
-        }
-        .bot-message {
-            background-color: #f1f0f0;
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 10px;
-            width: fit-content;
-            max-width: 60%;
-        }
-        .bot-message-container {
-            display: flex;
-            justify-content: flex-start;
-        }
-        .user-message-container {
-            display: flex;
-            justify-content: flex-end;
-        }
-        .chat-container {
-            max-height: 400px;
-            overflow-y: auto;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Home Page
     if choice == "Home":
-        st.title("Chat with the Enhanced Chatbot")
-        st.subheader("Interact with the chatbot and get real-time responses!")
+        st.write("Welcome! I'm here to assist you. You can ask me anything or choose an option from the menu.")
+        input_container = st.empty()
 
-        chat_container = st.container()
+        with input_container.container():
+            user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...")
+            send_button = st.button("Send")
 
-        with chat_container:
-            st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-            for chat in st.session_state['chat_history']:
-                if chat["user"]:
-                    st.markdown(
-                        f'<div class="user-message-container"><div class="user-message"><b>You:</b> {chat["user"]}</div></div>',
-                        unsafe_allow_html=True)
-                if chat["chatbot"]:
-                    st.markdown(
-                        f'<div class="bot-message-container"><div class="bot-message"><b>Bot:</b> {chat["chatbot"]}</div></div>',
-                        unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+        if user_input or send_button:
+            if user_input:
+                with st.spinner("Chatbot is typing..."):
+                    time.sleep(1)  # Simulate typing delay
+                response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
+                st.session_state['chat_history'].append({
+                    "user": user_input,
+                    "chatbot": response,
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+                st.write(f"**You:** {user_input}")
+                st.write(f"**Chatbot:** {response}")
 
-        # Use text_input to trigger on Enter key press
-        user_input = st.text_input("Ask something:", key="user_input", placeholder="Type your message here...")
-
-        if user_input:
-            response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
-            st.session_state['chat_history'].append({
-                "user": user_input,
-                "chatbot": response,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            })
-            st.session_state.user_input = ""  # Clear input field after sending
-
-        if st.button("Clear Chat History"):
-            st.session_state['chat_history'] = []
-
-    # Chat History Page
     elif choice == "Chat History":
-        st.title("Chat History")
+        st.subheader("Chat History")
         if st.session_state['chat_history']:
-            for chat in st.session_state['chat_history']:
+            for chat in st.session_state['chat_history'][-5:]:
                 st.write(f"**You:** {chat['user']}")
-                st.write(f"**Bot:** {chat['chatbot']}")
+                st.write(f"**Chatbot:** {chat['chatbot']}")
                 st.write(f"**Timestamp:** {chat['timestamp']}")
                 st.markdown("---")
         else:
             st.write("No chat history available.")
 
-    # Model Evaluation Page
     elif choice == "Model Evaluation":
-        st.title("Model Evaluation")
+        st.subheader("Model Evaluation")
         model_accuracy = accuracy_score(y_test, clf.predict(X_test))
         classification_rep = classification_report(y_test, clf.predict(X_test))
-
         st.write(f"Model Accuracy: {model_accuracy * 100:.2f}%")
-        st.text("Classification Report:")
+        st.write("### Classification Report")
         st.text(classification_rep)
 
-    # About Page
     elif choice == "About":
-        st.title("About the Project")
-        st.write("""
-            This is a chatbot application built using NLP and machine learning techniques.
-            The interface has been enhanced with a clean and interactive design.
-        """)
+        st.write("This project is a chatbot built using NLP and Streamlit.")
 
 if __name__ == '__main__':
     display_chat()
