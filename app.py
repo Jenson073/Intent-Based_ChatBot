@@ -44,7 +44,8 @@ def chatbot(input_text, clf, vectorizer, label_encoder, responses):
 # Streamlit Chat Interface
 def display_chat():
     st.set_page_config(page_title="Enhanced Chatbot", layout="wide")
-    st.sidebar.title("Chatbot Navigation")
+
+    # Sidebar navigation
     menu = ["Home", "Chat History", "Model Evaluation", "About"]
     choice = st.sidebar.radio("Menu", menu)
 
@@ -100,6 +101,7 @@ def display_chat():
         </style>
     """, unsafe_allow_html=True)
 
+    # Home Page
     if choice == "Home":
         st.title("Chat with the Enhanced Chatbot")
         st.subheader("Interact with the chatbot and get real-time responses!")
@@ -119,9 +121,10 @@ def display_chat():
                         unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-        user_input = st.text_area("Ask something:", key="user_input", placeholder="Type your message here...", height=100)
+        # Use text_input to trigger on Enter key press
+        user_input = st.text_input("Ask something:", key="user_input", placeholder="Type your message here...")
 
-        if st.button("Send") or user_input:
+        if user_input:
             response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
             st.session_state['chat_history'].append({
                 "user": user_input,
@@ -133,6 +136,7 @@ def display_chat():
         if st.button("Clear Chat History"):
             st.session_state['chat_history'] = []
 
+    # Chat History Page
     elif choice == "Chat History":
         st.title("Chat History")
         if st.session_state['chat_history']:
@@ -144,6 +148,7 @@ def display_chat():
         else:
             st.write("No chat history available.")
 
+    # Model Evaluation Page
     elif choice == "Model Evaluation":
         st.title("Model Evaluation")
         model_accuracy = accuracy_score(y_test, clf.predict(X_test))
@@ -153,6 +158,7 @@ def display_chat():
         st.text("Classification Report:")
         st.text(classification_rep)
 
+    # About Page
     elif choice == "About":
         st.title("About the Project")
         st.write("""
