@@ -45,16 +45,16 @@ def chatbot(input_text, clf, vectorizer, label_encoder, responses):
 # Streamlit Chat Interface
 def display_chat():
     st.set_page_config(
-        page_title="Enhanced Chatbot",
+        page_title="Intent-Based Chatbot",
         page_icon="🤖",
         layout="centered",
     )
 
-    st.title("🤖 Enhanced Intent-Based Chatbot")
+    st.title("🤖 Intent-Based Chatbot")
 
     # Sidebar menu
     menu = ["Home", "Chat History", "Model Evaluation", "About"]
-    choice = st.sidebar.selectbox("📜 Menu", menu)
+    choice = st.sidebar.selectbox("📜 Navigation Menu", menu)
 
     # Initialize chat history
     if 'chat_history' not in st.session_state:
@@ -68,16 +68,20 @@ def display_chat():
     clf.fit(X_train, y_train)
 
     if choice == "Home":
-        st.write("👋 Welcome! I'm here to assist you. You can ask me anything or choose an option from the menu.")
+        st.subheader("💬 Welcome to the Intent-Based Chatbot")
+        st.write("""
+        Start chatting with the bot by typing your query in the text box below. 
+        Use the sidebar to navigate through chat history, model evaluation, or learn more about the chatbot.
+        """)
         input_container = st.empty()
 
         with input_container.container():
-            user_input = st.text_input("💬 You:", key="user_input", placeholder="Type your message here...")
+            user_input = st.text_input("💬 Your Message:", key="user_input", placeholder="Ask me anything...")
             send_button = st.button("🚀 Send")
 
         if user_input or send_button:
             if user_input:
-                with st.spinner("🤖 Chatbot is typing..."):
+                with st.spinner("🤖 Generating a response..."):
                     time.sleep(1)  # Simulate typing delay
                 response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
                 st.session_state['chat_history'].append({
@@ -89,7 +93,8 @@ def display_chat():
                 st.write(f"**🤖 Chatbot:** {response}")
 
     elif choice == "Chat History":
-        st.subheader("📜 Chat History")
+        st.subheader("📜 Conversation History")
+        st.write("Below is a record of your recent conversations with the chatbot.")
         if st.session_state['chat_history']:
             for chat in st.session_state['chat_history'][-5:]:
                 st.write(f"**💬 You:** {chat['user']}")
@@ -100,18 +105,28 @@ def display_chat():
                 st.session_state['chat_history'] = []
                 st.success("Chat history cleared!")
         else:
-            st.write("📂 No chat history available.")
+            st.info("📂 No chat history available.")
 
     elif choice == "Model Evaluation":
-        st.subheader("📊 Model Evaluation")
+        st.subheader("📊 Model Performance Evaluation")
+        st.write("Evaluate the performance of the Intent-Based Chatbot.")
         model_accuracy = accuracy_score(y_test, clf.predict(X_test))
         classification_rep = classification_report(y_test, clf.predict(X_test))
-        st.write(f"📈 Model Accuracy: {model_accuracy * 100:.2f}%")
+        st.write(f"📈 **Model Accuracy:** {model_accuracy * 100:.2f}%")
         st.write("### 🛠 Classification Report")
         st.text(classification_rep)
 
     elif choice == "About":
-        st.write("ℹ️ This project is a chatbot built using NLP and Streamlit. Feel free to explore!")
+        st.subheader("ℹ️ About the Intent-Based Chatbot")
+        st.markdown("""
+        This chatbot is designed to classify user intents and respond with appropriate answers.
+        ### Features:
+        - **TF-IDF (Term Frequency-Inverse Document Frequency):** Extracts meaningful features from text.
+        - **Random Forest Classifier:** Predicts the user intent with high accuracy.
+        - **Streamlit:** Creates an interactive web application for deployment.
+
+        Developed as a demonstration of **NLP** and **Machine Learning** in building conversational AI.
+        """)
 
 if __name__ == '__main__':
     display_chat()
