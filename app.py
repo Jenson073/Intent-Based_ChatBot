@@ -121,8 +121,8 @@ def display_chat():
             st.markdown('</div>', unsafe_allow_html=True)
 
         with input_container:
-            user_input = st.text_input("Ask something:", key="user_input", placeholder="Type your message here...")
-            if st.button("Send"):
+            user_input = st.text_area("Ask something:", key="user_input", placeholder="Type your message here...", height=100)
+            if st.button("Send") or user_input:
                 if user_input:
                     response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
                     st.session_state['chat_history'].append({
@@ -130,6 +130,7 @@ def display_chat():
                         "chatbot": response,
                         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     })
+                    st.session_state.user_input = ""  # Clear input field after sending
 
         if st.button("Clear Chat History"):
             st.session_state['chat_history'] = []
