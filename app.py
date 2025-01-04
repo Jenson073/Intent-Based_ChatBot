@@ -105,7 +105,6 @@ def display_chat():
         st.subheader("Interact with the chatbot and get real-time responses!")
 
         chat_container = st.container()
-        input_container = st.container()
 
         with chat_container:
             st.markdown('<div class="chat-container">', unsafe_allow_html=True)
@@ -120,17 +119,16 @@ def display_chat():
                         unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-        with input_container:
-            user_input = st.text_area("Ask something:", key="user_input", placeholder="Type your message here...", height=100)
-            if st.button("Send") or user_input:
-                if user_input:
-                    response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
-                    st.session_state['chat_history'].append({
-                        "user": user_input,
-                        "chatbot": response,
-                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    })
-                    st.session_state.user_input = ""  # Clear input field after sending
+        user_input = st.text_area("Ask something:", key="user_input", placeholder="Type your message here...", height=100)
+
+        if st.button("Send") or user_input:
+            response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
+            st.session_state['chat_history'].append({
+                "user": user_input,
+                "chatbot": response,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            st.session_state.user_input = ""  # Clear input field after sending
 
         if st.button("Clear Chat History"):
             st.session_state['chat_history'] = []
