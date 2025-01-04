@@ -63,23 +63,43 @@ def display_chat():
 
     if choice == "Home":
         st.subheader("Chat with the Bot")
-        st.write("Type your message below and press 'Send' to interact with the chatbot.")
-        
+        st.write("Type your message below and interact with the chatbot in real-time.")
+
+        # Display chat history dynamically
+        if st.session_state['chat_history']:
+            for chat in st.session_state['chat_history']:
+                st.markdown(f"**You:** {chat['user']}")
+                st.markdown(f"**Bot:** {chat['chatbot']}")
+                st.markdown(f"**Timestamp:** {chat['timestamp']}")
+                st.markdown("---")
+
         # Input field for user input
-        user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...", label_visibility="collapsed")
-        
-        # Send button
-        if st.button("Send"):
-            if user_input:
+        user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...")
+
+        # Process input when "Enter" key is pressed or "Send" button is clicked
+        if st.button("Send") or (user_input and st.session_state.get("user_input_sent", False)):
+            st.session_state["user_input_sent"] = False  # Reset the flag
+            if user_input.strip():  # Check if the input is not empty
                 response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
                 st.session_state['chat_history'].append({
                     "user": user_input,
                     "chatbot": response,
                     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
-                st.markdown(f"**You:** {user_input}")
-                st.markdown(f"**Bot:** {response}")
-                st.markdown(f"**Timestamp:** {st.session_state['chat_history'][-1]['timestamp']}")
+                st.experimental_rerun()
+
+        # JavaScript for "Enter" key support
+        st.markdown("""
+        <script>
+        const inputField = window.parent.document.querySelectorAll('input[type="text"]')[0];
+        inputField.addEventListener('keydown', (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                window.parent.document.querySelector('button[type="button"]').click();
+            }
+        });
+        </script>
+        """, unsafe_allow_html=True)
 
     elif choice == "Chat History":
         st.subheader("Chat History")
