@@ -1,10 +1,12 @@
 # Intent-Based Chatbot with Streamlit
 
-This repository contains an intent-based chatbot built using Natural Language Processing (NLP) techniques, trained using a machine learning model, and deployed using Streamlit.
+This repository contains two intent-based chatbot built using Natural Language Processing (NLP) techniques, trained using a machine learning model, and one using Localtunnel to deploy the Streamlit app to public and other directly uses Streamlit account to create a Streamlit app.
 
 ## Setup Instructions
 
-To view and run the chatbot, follow the instructions in the provided Notebook (`.ipynb`). The notebook contains step-by-step instructions for setting up the environment, preparing the data, and running the chatbot using Streamlit.
+To view and run the chatbot using Localtunnel, follow the instructions in the provided Notebook (`.ipynb`). The notebook contains step-by-step instructions for setting up the environment, preparing the data, and running the chatbot using Streamlit.
+
+To run the chatbot using Streamlit, go to the Streamlit website and create a account and copy the app.py, requirements.txt, intents.json files to a github repository and then head to your account give create app option and connect with your github repository then fill the required fields once done Streamlit will fetch the details and give a public url for your app thus deploying your Streamlit app.
 
 ## Code Explanation
 
@@ -47,6 +49,8 @@ If you encounter issues while setting up or running the chatbot, try the followi
 **Bad Gateway Error (while accessing Streamlit app via LocalTunnel)**:
    - Solution: If you see a **Bad Gateway** error, it might be due to LocalTunnel's temporary issues. Try stopping the current tunnel and running the command again. Alternatively, reload the tunnel URL or restart the Streamlit app.
 
+**While accessing Streamlit app via Streamlit Account**:
+   - Ensure that the requirements.txt and dataset file are correctly given since these are directly fetched by Streamlit from github for the running of app.py.
 ---
 
 ## Requirements
@@ -59,3 +63,4 @@ Before starting, make sure you have the following:
 - **NLTK**: For natural language processing (used to download tokenization data).
 - **scikit-learn**: For training the machine learning model and performing evaluations.
 - **localtunnel**: For exposing the Streamlit app over a public URL.
+- **GitHub Repository**: With the required files for being fetched by the Streamlit.
