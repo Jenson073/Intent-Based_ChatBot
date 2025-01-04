@@ -134,7 +134,6 @@ def display_chat():
 
         if st.button("Clear Chat History"):
             st.session_state['chat_history'] = []
-            st.experimental_rerun()
 
     elif choice == "Chat History":
         st.title("Chat History")
