@@ -44,14 +44,19 @@ def chatbot(input_text, clf, vectorizer, label_encoder, responses):
 
 # Streamlit Chat Interface
 def display_chat():
-    st.title("Enhanced Intent-Based Chatbot")
+    st.set_page_config(
+        page_title="Enhanced Chatbot",
+        page_icon="🤖",
+        layout="centered",
+    )
 
-    # Sidebar menu
+    st.title("🤖 Enhanced Intent-Based Chatbot")
+
+    # Sidebar menu with theme toggle
     menu = ["Home", "Chat History", "Model Evaluation", "About"]
-    choice = st.sidebar.selectbox("Menu", menu)
+    choice = st.sidebar.selectbox("📜 Menu", menu)
 
-    # Theme toggle
-    theme = st.sidebar.radio("Choose Theme", options=["Light", "Dark"])
+    theme = st.sidebar.radio("🎨 Choose Theme", options=["Light", "Dark"])
     if theme == "Dark":
         st.markdown(
             """
@@ -59,6 +64,18 @@ def display_chat():
             body {
                 background-color: #1e1e1e;
                 color: #ffffff;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            """
+            <style>
+            body {
+                background-color: #ffffff;
+                color: #000000;
             }
             </style>
             """,
@@ -77,16 +94,16 @@ def display_chat():
     clf.fit(X_train, y_train)
 
     if choice == "Home":
-        st.write("Welcome! I'm here to assist you. You can ask me anything or choose an option from the menu.")
+        st.write("👋 Welcome! I'm here to assist you. You can ask me anything or choose an option from the menu.")
         input_container = st.empty()
 
         with input_container.container():
-            user_input = st.text_input("You:", key="user_input", placeholder="Type your message here...")
-            send_button = st.button("Send")
+            user_input = st.text_input("💬 You:", key="user_input", placeholder="Type your message here...")
+            send_button = st.button("🚀 Send")
 
         if user_input or send_button:
             if user_input:
-                with st.spinner("Chatbot is typing..."):
+                with st.spinner("🤖 Chatbot is typing..."):
                     time.sleep(1)  # Simulate typing delay
                 response = chatbot(user_input, clf, vectorizer, label_encoder, responses)
                 st.session_state['chat_history'].append({
@@ -94,30 +111,30 @@ def display_chat():
                     "chatbot": response,
                     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
-                st.write(f"**You:** {user_input}")
-                st.write(f"**Chatbot:** {response}")
+                st.write(f"**💬 You:** {user_input}")
+                st.write(f"**🤖 Chatbot:** {response}")
 
     elif choice == "Chat History":
-        st.subheader("Chat History")
+        st.subheader("📜 Chat History")
         if st.session_state['chat_history']:
             for chat in st.session_state['chat_history'][-5:]:
-                st.write(f"**You:** {chat['user']}")
-                st.write(f"**Chatbot:** {chat['chatbot']}")
-                st.write(f"**Timestamp:** {chat['timestamp']}")
+                st.write(f"**💬 You:** {chat['user']}")
+                st.write(f"**🤖 Chatbot:** {chat['chatbot']}")
+                st.write(f"**⏱ Timestamp:** {chat['timestamp']}")
                 st.markdown("---")
         else:
-            st.write("No chat history available.")
+            st.write("📂 No chat history available.")
 
     elif choice == "Model Evaluation":
-        st.subheader("Model Evaluation")
+        st.subheader("📊 Model Evaluation")
         model_accuracy = accuracy_score(y_test, clf.predict(X_test))
         classification_rep = classification_report(y_test, clf.predict(X_test))
-        st.write(f"Model Accuracy: {model_accuracy * 100:.2f}%")
-        st.write("### Classification Report")
+        st.write(f"📈 Model Accuracy: {model_accuracy * 100:.2f}%")
+        st.write("### 🛠 Classification Report")
         st.text(classification_rep)
 
     elif choice == "About":
-        st.write("This project is a chatbot built using NLP and Streamlit.")
+        st.write("ℹ️ This project is a chatbot built using NLP and Streamlit. Feel free to explore!")
 
 if __name__ == '__main__':
     display_chat()
